@@ -40,8 +40,8 @@ router.post('/login', async (req, res) => {
         email: userInfo.email, // Busca o usuário pelo email
       }
     })
-   // Se o usuário não for encontrado, retorna erro 404
-    if (!user) { 
+    // Se o usuário não for encontrado, retorna erro 404
+    if (!user) {
       return res.status(404).json({ message: 'Usuário não encontrado' })
     }
 
@@ -50,19 +50,19 @@ router.post('/login', async (req, res) => {
     if (!isMatch) {
 
       // Se as senhas não coincidirem, retorna erro 401
-return res.status(400).json({ message: 'Sua senha está incorreta' }) 
+      return res.status(400).json({ message: 'Sua senha está incorreta' })
     }
 
-// gera o token
+    // gera o token
 
-const token = jwt.sign({ id: user.id}, JWT_SECRET, {expiresIn: '7 days'}); // Gera um token JWT com o ID do usuário e define a expiração para 7 dias
+    const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '7 days' }); // Gera um token JWT com o ID do usuário e define a expiração para 7 dias
 
-// Retorna mensagem de sucesso
+    // Retorna mensagem de sucesso
 
     res.status(200).json(token)({ message: 'Usuário encontrado' });  // Retorna o token com status 200
-  
-  // Caso ocorra um erro, executa o bloco catch
-  } catch (err) { 
+
+    // Caso ocorra um erro, executa o bloco catch
+  } catch (err) {
     console.error('Erro ao fazer login:', err);
     res.status(500).json({ message: 'Erro ao fazer login' })
   }
@@ -70,13 +70,14 @@ const token = jwt.sign({ id: user.id}, JWT_SECRET, {expiresIn: '7 days'}); // Ge
 
 //_______________________________________________________________________
 
-router.post('/addpanel', async (req, res) => { // Rota para cadastrar um novo painel
+// Rota para cadastrar um novo painel
+router.post('/addpanel', async (req, res) => {
   try { // Caso faça sucesso, executa o bloco try
     const painel = req.body //
     const painelDB = await prisma.painel.create({ // Cria um novo painel no banco de dados usando Prisma
       data: { // Dados do painel a serem inseridos no banco de dados
-      name: painel.name, // Nome do painel
-      user_id: painel.user_id // ID do usuário logado
+        name: painel.name, // Nome do painel
+        user_id: painel.user_id // ID do usuário logado
       }
     });
     res.status(201).json(painelDB); // Retorna o painel criado com status 201 (Created)
@@ -84,10 +85,33 @@ router.post('/addpanel', async (req, res) => { // Rota para cadastrar um novo pa
     console.error('Erro ao cadastrar painel:', err); // Exibe o erro no console
     res.status(500).json({ error: 'Erro ao cadastrar painel' }); // Retorna um erro com status 500 (Internal Server Error)
   }
-    }
+}
 )
 
-  
+
+// Rota para cadastrar midias do painel
+router.post('/addmidia', async (req, res) => {
+  try { // Caso faça sucesso, executa o bloco try
+    const midias = req.body //
+    const midiasDB = await prisma.midias.create({ // Cria um novo painel no banco de dados usando Prisma
+      data: { // Dados do painel a serem inseridos no banco de dados
+        name: midias.name, // Nome do painel
+        painel_id: midias.painel_id, // ID do painel selecionado
+        url: midias.url, // URL da mídia
+        type: midias.type, // Tipo da mídia
+      }
+    });
+    res.status(201).json(midiasDB); // Retorna a midia criada com status 201 (Created)
+  } catch (err) { // Caso ocorra um erro, executa o bloco catch
+    console.error('Erro ao cadastrar midia:', err); // Exibe o erro no console
+    res.status(500).json({ error: 'Erro ao cadastrar midia' }); // Retorna um erro com status 500 (Internal Server Error)
+  }
+}
+)
+
+
+//_______________________________________________________________________
+
 //_______________________________________________________________________
 
 export default router; // Exporta as rotas definidas para serem usadas em outros arquivos

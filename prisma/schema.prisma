@@ -36,7 +36,6 @@ model midias {
   painel_id String
   dateCreated DateTime @default(now())
   dateUpdated DateTime @updatedAt @default(now())
-  user_id String @unique
   
 }
 

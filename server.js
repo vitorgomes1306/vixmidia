@@ -12,6 +12,7 @@ const app = express(); // Cria uma instância do Express
 app.use(express.json()); // Middleware para analisar o corpo das requisições como JSON
 app.use('/', publicRoutes); // Usa as rotas públicas definidas em public.js
 app.use('/', auth, privateRoutes); // Usa as rotas privadas definidas em private.js E passa pelo auth antes
+app.use(express.static('public'));
 
 app.get('/usuarios', async (req, res) => { // Rota para listar usuários
     try {
@@ -22,8 +23,6 @@ app.get('/usuarios', async (req, res) => { // Rota para listar usuários
         res.status(500).json({ error: 'Erro ao buscar usuários' });
     }
 });
-
-app.use(express.static('public')); // pasta com arquivos "públicos"
 
 app.listen(4000, () => { // Inicia o servidor na porta 4000
     console.log('Server is running on http://localhost:4000');
