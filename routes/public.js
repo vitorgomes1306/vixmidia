@@ -3,6 +3,7 @@ import prisma from '../lib/prisma.js'; // Importa o PrismaClient para interagir 
 import bcrypt from 'bcrypt'; // Importa o bcrypt para criptografar senhas
 import jwt from 'jsonwebtoken'; // Importa o jsonwebtoken para gerar tokens de autenticação
 
+
 const router = express.Router(); // Cria uma instância do Router do Express para definir rotas
 
 const JWT_SECRET = process.env.JWT_SECRET; //Puxa o segredo do JWT do ambiente no arquivo .env
@@ -59,7 +60,15 @@ router.post('/login', async (req, res) => {
 
     // Retorna mensagem de sucesso
 
-    res.status(200).json(token)({ message: 'Usuário encontrado' });  // Retorna o token com status 200
+    res.status(200).json({
+      token,  // JWT token
+      name: user.name,
+      email: user.email,
+      message: 'Usuário encontrado'
+      
+    }); // Retorna o token com status 200
+
+
 
     // Caso ocorra um erro, executa o bloco catch
   } catch (err) {
@@ -108,11 +117,9 @@ router.post('/addmidia', async (req, res) => {
   }
 }
 )
-
-
 //_______________________________________________________________________
 
-//_______________________________________________________________________
+
 
 export default router; // Exporta as rotas definidas para serem usadas em outros arquivos
 //_______________________________________________________________________
