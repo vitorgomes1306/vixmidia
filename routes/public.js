@@ -65,7 +65,7 @@ router.post('/login', async (req, res) => {
       name: user.name,
       email: user.email,
       message: 'Usuário encontrado'
-      
+
     }); // Retorna o token com status 200
 
 
@@ -81,21 +81,28 @@ router.post('/login', async (req, res) => {
 
 // Rota para cadastrar um novo painel
 router.post('/addpanel', async (req, res) => {
-  try { // Caso faça sucesso, executa o bloco try
-    const painel = req.body //
-    const painelDB = await prisma.painel.create({ // Cria um novo painel no banco de dados usando Prisma
-      data: { // Dados do painel a serem inseridos no banco de dados
-        name: painel.name, // Nome do painel
-        user_id: painel.user_id // ID do usuário logado
-      }
+  try {
+    const panel = req.body;
+
+    // Validação dos campos obrigatórios
+    if (!panel.name || !panel.userId) {
+      return res.status(400).json({ error: 'Os campos name e userId são obrigatórios' });
+    }
+
+    // Cria o painel no banco de dados
+    const panelDB = await prisma.panel.create({
+      data: {
+        name: panel.name, // Nome do painel
+        userId: panel.userId, // ID do usuário relacionado ao painel
+      },
     });
-    res.status(201).json(painelDB); // Retorna o painel criado com status 201 (Created)
-  } catch (err) { // Caso ocorra um erro, executa o bloco catch
-    console.error('Erro ao cadastrar painel:', err); // Exibe o erro no console
-    res.status(500).json({ error: 'Erro ao cadastrar painel' }); // Retorna um erro com status 500 (Internal Server Error)
+
+    res.status(201).json(panelDB); // Retorna o painel criado
+  } catch (err) {
+    console.error('Erro ao cadastrar painel:', err);
+    res.status(500).json({ error: 'Erro ao cadastrar painel' });
   }
-}
-)
+});
 
 
 // Rota para cadastrar midias do painel

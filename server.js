@@ -4,6 +4,8 @@ import publicRoutes from './routes/public.js';
 import privateRoutes from './routes/private.js';
 import auth from './middlewares/auth.js';
 import { PrismaClient } from '@prisma/client';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const app = express();
 const prisma = new PrismaClient(); // Não esqueça de instanciar o Prisma!

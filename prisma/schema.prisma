@@ -11,45 +11,62 @@ datasource db {
       url      = env("DATABASE_URL")
 }
 
-// Cria tabela de usuário
-model user { 
-  id      String   @id @default(cuid()) @unique
-  name    String
-  email   String   @unique
-  password String
-}
-// Cadastra painel
-model painel { 
-  id      String   @id @default(cuid()) @unique
-  name    String
-  layoutTelaCheia   Boolean @default(true)
+model User {
+  id       Int      @id @default(autoincrement()) // Define que o id é a chave primária e que é autoincrementável
+  name     String // Nome do usuário
+  email    String   @unique // Define que o email é único
+  password String 
+  panels   Panel[] // Propriedade que Define que um usuário pode ter vários painéis
   dateCreated DateTime @default(now())
   dateUpdated DateTime @updatedAt @default(now())
-  user_id String @unique
-}
-// Cadastra midias e item do painel ou midias
-model midias { 
-  id  String   @id @default(cuid()) @unique
-  name    String
-  type    String
-  url     String
-  painel_id String
-  dateCreated DateTime @default(now())
-  dateUpdated DateTime @updatedAt @default(now())
-  
+  @@map("User")  // Mapear a tabela respeitando o case-sensitive do PostgreSQL
 }
 
-// caso queira usar o Mongo, descomentar o código abaixo e comentar o código acima.
+model Panel {
+  id        Int      @id @default(autoincrement()) // Define que o id é a chave primária e que é autoincrementável
+  name      String? // Nome do painel (opcional)
+  userId    Int 
+  user      User     @relation(fields: [userId], references: [id]) // Define que o usuario é a chave estrangeira na tabela Panel e reference define que o id é a chave primária na tabela User
+  type      PanelType @default(FULL_SCREEN)  // Tipo de painel (tela cheia ou dividida)
+  medias    PanelMedia[]
+  devices   Device[]
+}
 
-// model user {  // se usar Mongo
-//   id      String   @id @default(auto()) @map("_id") @db.ObjectId 
-//   email   String   @unique 
-//   name    String
-//   password String
-  
-// }
+model Media {
+  id      Int       @id @default(autoincrement())
+  title   String
+  url     String?   // Opcional: porque alguns tipos (ex: weather) podem não precisar de URL
+  type    MediaType
+  panels  PanelMedia[]
+}
 
-// datasource db {
-//   provider = "mongodb"
-//   url      = env("DATABASE_URL") 
-// }
+model PanelMedia {
+  panelId Int
+  mediaId Int
+  panel   Panel @relation(fields: [panelId], references: [id])
+  media   Media @relation(fields: [mediaId], references: [id])
+
+  @@id([panelId, mediaId])
+}
+
+model Device {
+  id        Int    @id @default(autoincrement())
+  name      String
+  deviceKey String @unique
+  panelId   Int
+  panel     Panel  @relation(fields: [panelId], references: [id])
+  type      String @default("TV")
+  status    String @default("Ativo")
+}
+
+enum PanelType {
+  FULL_SCREEN   // Tela cheia
+  SPLIT_SCREEN  // Tela dividida
+}
+
+enum MediaType {
+  PHOTO    // Foto
+  VIDEO    // Vídeo
+  RSS      // Notícias de feed RSS
+  WEATHER  // Previsão do tempo
+}
